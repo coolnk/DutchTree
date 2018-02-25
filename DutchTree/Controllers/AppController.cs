@@ -15,6 +15,7 @@ namespace DutchTree.Controllers
 	    public AppController(IDutchRepository repository)
 	    {
 		    _repository = repository;
+
 	    }
 
 		public IActionResult Index()
