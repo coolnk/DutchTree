@@ -1,0 +1,51 @@
+﻿/*body {
+}
+menu ul {
+ list-style-type: none; 
+ display: inline
+}
+menu ul li {
+   display: inline;
+}
+
+form {
+    display: inline-block;
+    width: 100px;
+    padding: 0;
+    margin : 0;
+}
+
+.contact_form {
+    display: block;
+    background-color: aqua;
+    border: black;
+    width: 250px;
+    padding-left: 10px;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    margin-bottom: 10px;
+
+}
+
+input[type=text], select {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/*textarea, select {
+    width: 100%;a
+    padding: 12px 20px;
+    display: inline-block;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}*/
+
+
+
+
