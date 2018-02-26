@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DutchTreat.Data.Entities;
+using DutchTree.Data.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace DutchTree.Data
@@ -18,7 +19,7 @@ namespace DutchTree.Data
 			_logger = logger;
 		}
 
-	    public IEnumerable<Product> GetAlProducts()
+	    public IEnumerable<Product> GetAllProducts()
 	    {
 		    try
 		    {
@@ -63,5 +64,26 @@ namespace DutchTree.Data
 			}
 			
 		}
+
+	    public void AddEntity(object model)
+	    {
+	        _context.Add(model);
+	    }
+
+	    public IEnumerable<Order> GetAllOrders(bool includeItems)
+	    {
+	        if (includeItems)
+	        {
+	            return _context.Orders.Include(o => o.Items)
+	                .ThenInclude(p => p.Product).ToList();
+	        }
+	        return _context.Orders.ToList();
+	    }
+
+	    public Order GetOrderById(int id)
+	    {
+	        return _context.Orders.Include(o => o.Items).ThenInclude(i => i.Product).Where(m => m.Id == id).FirstOrDefault();
+
+        }
     }
 }

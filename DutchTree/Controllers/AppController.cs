@@ -44,7 +44,7 @@ namespace DutchTree.Controllers
 
 	    public IActionResult Shop()
 	    {
-		    var result = _repository.GetAlProducts();
+		    var result = _repository.GetAllProducts();
 			return View(result);
 	    }
     }

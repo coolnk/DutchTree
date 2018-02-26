@@ -1,4 +1,4 @@
-﻿namespace DutchTreat.Data.Entities
+﻿namespace DutchTree.Data.Entities
 {
   public class OrderItem
   {
