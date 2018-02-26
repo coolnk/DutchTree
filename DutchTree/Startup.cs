@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 
 namespace DutchTree
 {
@@ -37,7 +38,8 @@ namespace DutchTree
 			//Transient services are added as they are needed they are not held around, only need it once in a lifetime of an app 
 			services.AddTransient<DutchSeeder>();
 	        services.AddScoped<IDutchRepository, DutchRepository>();
-			services.AddMvc();
+            // Json options were added cuz of the order->orderitem-> order self referencing loop error, looking at the output window shows it all
+			services.AddMvc().AddJsonOptions( opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
