@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using DutchTree.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -32,6 +33,9 @@ namespace DutchTree
 	        {
 		        cfg.UseSqlServer(_config.GetConnectionString("DutchConnectionString"));
 	        });
+
+            //through dependency injection of automapper
+            services.AddAutoMapper();
 			//scoped one within the scopde
 			//singletime onece in the lifetime
 

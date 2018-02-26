@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DutchTreat.Data.Entities;
 using DutchTree.Data;
+using DutchTree.Data.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -28,7 +28,7 @@ namespace DutchTree.Controllers
 		[HttpGet]
 	    public IEnumerable<Product> Get()
 	    {
-		    return _repository.GetAlProducts();
+		    return _repository.GetAllProducts();
 	    }
     }
 }
