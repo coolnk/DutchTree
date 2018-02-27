@@ -1,11 +1,17 @@
 ﻿{
   "ConnectionStrings": {
-    "DutchConnectionString": "server=home;Database=DutchTreeDb;Integrated Security=true;MultipleActiveResultSets=true"
+    "DutchConnectionString": "server=home;Database=DutchTreeDb;Integrated Security=true;MultipleActiveResultSets=true",
+     //"DutchConnectionString": "server=bkmreg;Database=DutchTreeDb;Integrated Security=true;MultipleActiveResultSets=true"
   },
   "Logging": {
     "LogLevel": {
-      "Default":  "Information", 
+      "Default": "Information",
       "Microsoft": "Warning"
-    } 
+    },
+    "Tokens": {
+      "Key": "fdsafsanjkdö",
+      "Issuer": "localhost",
+      "Audience": ""
+    }
   } 
 }

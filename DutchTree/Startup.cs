@@ -40,6 +40,10 @@ namespace DutchTree
               //  cfg.Password.
             })
             .AddEntityFrameworkStores<DutchContext>(); //tilling where to get the store, some people like to have in a differnet context
+
+            services.AddAuthentication()
+                .AddCookie()
+                .AddJwtBearer();
       
             
             //requires to use dependency injection
