@@ -4,9 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using DutchTree.Data;
+using DutchTree.Data.Entities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,25 +20,40 @@ namespace DutchTree
     public class Startup
     {
 	    private readonly IConfiguration _config;
+        private readonly IHostingEnvironment _env;
 
-	    public Startup(IConfiguration configuration)
-	    {
-		    _config = configuration;
-	    }
+        public Startup(IConfiguration configuration, IHostingEnvironment env)
+        {
+            _config = configuration;
+            _env = env;
+        }
 		
 		
 		// This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-			//requires to use dependency injection
+			//to add identity login, can also derive role classed form identity role
+            services.AddIdentity<StoreUser, IdentityRole>(cfg =>
+            {
+                cfg.User.RequireUniqueEmail = true;
+              //  cfg.Password.
+            })
+            .AddEntityFrameworkStores<DutchContext>(); //tilling where to get the store, some people like to have in a differnet context
+      
+            
+            //requires to use dependency injection
 	        services.AddDbContext<DutchContext>(cfg =>
 	        {
 		        cfg.UseSqlServer(_config.GetConnectionString("DutchConnectionString"));
 	        });
 
             //through dependency injection of automapper
-            services.AddAutoMapper();
+
+            services.AddSingleton(
+                new Mapper(new MapperConfiguration(cfg => cfg.AddProfile<DutchMappingProfile>())));
+            //Replaced the following caused mapper already initialized
+            //services.AddAutoMapper();
 			//scoped one within the scopde
 			//singletime onece in the lifetime
 
@@ -43,7 +61,16 @@ namespace DutchTree
 			services.AddTransient<DutchSeeder>();
 	        services.AddScoped<IDutchRepository, DutchRepository>();
             // Json options were added cuz of the order->orderitem-> order self referencing loop error, looking at the output window shows it all
-			services.AddMvc().AddJsonOptions( opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
+            //The opt was added later to support ssl for using with authentication
+			services.AddMvc(opt =>
+			    {
+			        if (_env.IsProduction())
+			        {
+			            opt.Filters.Add(new RequireHttpsAttribute());
+
+			        }
+			    }
+                ).AddJsonOptions( opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -74,6 +101,9 @@ namespace DutchTree
             // app.UseDefaultFiles(); // look for blandk directory url at the root url  look for those files by default
             app.UseStaticFiles();
 
+            //since this is the pipeline authentication should come before the use MVC, the the wireup happening here
+            app.UseAuthentication();
+
             app.UseMvc(cfg =>
             {
                 cfg.MapRoute("Default",
@@ -94,7 +124,9 @@ namespace DutchTree
 		        using (var scope = app.ApplicationServices.CreateScope())
 		        {
 			        var seeder = scope.ServiceProvider.GetService<DutchSeeder>();
-					seeder.Seed();
+                    // this is async method call, we could convert the Configure to async 
+                    // but the current version does not support well witl async so make it sync by adding .Wait() after seeder.Seed()
+                    seeder.Seed();
 		        }
 	        }
         }
