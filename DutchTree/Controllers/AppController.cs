@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DutchTree.Data;
 using DutchTree.ViewModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DutchTree.Controllers
@@ -42,6 +43,7 @@ namespace DutchTree.Controllers
             return View();
         }
 
+        [Authorize]
 	    public IActionResult Shop()
 	    {
 		    var result = _repository.GetAllProducts();

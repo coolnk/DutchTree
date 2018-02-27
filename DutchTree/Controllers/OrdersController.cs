@@ -10,12 +10,15 @@ using Microsoft.EntityFrameworkCore;
 using DutchTree.Data;
 using DutchTree.Data.Entities;
 using DutchTree.ViewModel;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 
 namespace DutchTree.Controllers
 {
     [Produces("application/json")]
     [Route("api/[Controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class OrdersController : Controller
     {
         private readonly IDutchRepository _repository;
