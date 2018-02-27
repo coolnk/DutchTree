@@ -1,17 +1,21 @@
 ﻿{
   "ConnectionStrings": {
-    "DutchConnectionString": "server=home;Database=DutchTreeDb;Integrated Security=true;MultipleActiveResultSets=true",
-     //"DutchConnectionString": "server=bkmreg;Database=DutchTreeDb;Integrated Security=true;MultipleActiveResultSets=true"
+    "DutchConnectionString": "server=home;Database=DutchTreeDb;Integrated Security=true;MultipleActiveResultSets=true"
+    //"DutchConnectionString": "server=bkmreg;Database=DutchTreeDb;Integrated Security=true;MultipleActiveResultSets=true"
+
   },
   "Logging": {
     "LogLevel": {
       "Default": "Information",
       "Microsoft": "Warning"
-    },
-    "Tokens": {
-      "Key": "fdsafsanjkdö",
-      "Issuer": "localhost",
-      "Audience": ""
     }
-  } 
+  },
+    "Tokens": {
+      "Key": "a;lkjasdf;lkajsd;flkjas ;dflkja sd",
+      "Issuer": "http://localhost:8888",
+      "Audience": "users"
+    }
+  }
 }
+
+

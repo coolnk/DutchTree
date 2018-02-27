@@ -15,7 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace DutchTree.Controllers
 {
-    public class AccountController : Controller
+	public class AccountController : Controller
     {
         private readonly ILogger<AccountController> _logger;
         private readonly SignInManager<StoreUser> _signInManager;
@@ -76,46 +76,56 @@ namespace DutchTree.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateToken([FromBody] LoginViewModel model)
         {
-            if (ModelState.IsValid)
-            {
-                //Create a new userMangager to get user
-                var user = await _userManager.FindByNameAsync(model.Username);
-                if (user != null)
-                {
-                    var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
-                    if (result.Succeeded)
-                    {
-                        //Create the token
-                        var claims = new[]
-                        {
-                            new Claim(JwtRegisteredClaimNames.Sub,user.Email),
-                            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                            new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName) 
-                        };
+	        try
+	        {
+		        if (ModelState.IsValid)
+		        {
+			        //Create a new userMangager to get user
+			        var user = await _userManager.FindByNameAsync(model.Username);
+			        if (user != null)
+			        {
+				        var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
+				        if (result.Succeeded)
+				        {
+					        //Create the token
+					        var claims = new[]
+					        {
+						        new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+						        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+						        new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName)
+					        };
 
-                        //new we need the key, the secret to encrypt the token //Token with a property key
-                        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Tokens:Key"]));
-                        _logger.LogInformation($"this is the token {_config["Tokens:Key"]}");
-                        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-                        
-                        var token = new JwtSecurityToken(
-                            _config["Tokens:Issuer"],
-                            _config["Tokens:Audience"],
-                            claims,
-                            expires:DateTime.UtcNow.AddMinutes(20),
-                            signingCredentials:creds
-                            );
-                        var results = new
-                        {
-                            token = new JwtSecurityTokenHandler().WriteToken(token),
-                            expiration = token.ValidTo
-                        };
 
-                        return Created("", results);
-                    }
-                }
-            }
-            return BadRequest();
+							//new we need the key, the secret to encrypt the token //Token with a property key
+							var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Tokens:Key"]));
+					        _logger.LogInformation($"this is the token {_config["Tokens:Key"]}");
+					        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+					        var token = new JwtSecurityToken(
+						        _config["Tokens:Issuer"],
+						        _config["Tokens:Audience"],
+						        claims,
+						        expires: DateTime.UtcNow.AddMinutes(20),
+						        signingCredentials: creds
+					        );
+					        var results = new
+					        {
+						        token = new JwtSecurityTokenHandler().WriteToken(token),
+						        expiration = token.ValidTo
+					        };
+
+					        return Created("", results);
+				        }
+			        }
+		        }
+		        return BadRequest();
+			}
+	        catch (Exception ex)
+	        {
+		        _logger.LogError($"Failes to create token {ex}");
+				return BadRequest();
+			}
+          
         }
        
     }

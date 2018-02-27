@@ -39,14 +39,16 @@ namespace DutchTree.Data
 	                UserName = "shawn@dutchtreat.com",
 	                Email = "shawn@dutchtreat.com"
 	            };
-	        }
-	        var result = await _userManager.CreateAsync(user, "P@ssw0rd!");
-	        if (result != IdentityResult.Success)
-	        {
-	            throw new InvalidOperationException("Failed to create default user");
-	        } 
 
-		    if (!_ctx.Products.Any())
+		        var result = await _userManager.CreateAsync(user, "P@ssw0rd!");
+		        if (result != IdentityResult.Success)
+		        {
+			        throw new InvalidOperationException("Failed to create default user");
+		        }
+
+			}
+
+			if (!_ctx.Products.Any())
 		    {
 
 			    var filepath = Path.Combine(_hosting.ContentRootPath, "Data/products.json");

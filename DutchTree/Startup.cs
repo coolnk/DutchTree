@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using DutchTree.Data;
@@ -13,7 +15,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace DutchTree
 {
@@ -41,13 +45,9 @@ namespace DutchTree
             })
             .AddEntityFrameworkStores<DutchContext>(); //tilling where to get the store, some people like to have in a differnet context
 
-            services.AddAuthentication()
-                .AddCookie()
-                .AddJwtBearer();
-      
-            
-            //requires to use dependency injection
-	        services.AddDbContext<DutchContext>(cfg =>
+  
+			//requires to use dependency injection
+			services.AddDbContext<DutchContext>(cfg =>
 	        {
 		        cfg.UseSqlServer(_config.GetConnectionString("DutchConnectionString"));
 	        });
@@ -64,8 +64,10 @@ namespace DutchTree
 			//Transient services are added as they are needed they are not held around, only need it once in a lifetime of an app 
 			services.AddTransient<DutchSeeder>();
 	        services.AddScoped<IDutchRepository, DutchRepository>();
-            // Json options were added cuz of the order->orderitem-> order self referencing loop error, looking at the output window shows it all
-            //The opt was added later to support ssl for using with authentication
+			// Json options were added cuz of the order->orderitem-> order self referencing loop error, looking at the output window shows it all
+			//The opt was added later to support ssl for using with authentication
+
+
 			services.AddMvc(opt =>
 			    {
 			        if (_env.IsProduction())
@@ -75,6 +77,12 @@ namespace DutchTree
 			        }
 			    }
                 ).AddJsonOptions( opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
+
+			services.AddSwaggerGen(c =>
+	        {
+		        c.SwaggerDoc("v1", new Info {Title = "My api", Version = "v1"});
+	        });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -90,30 +98,37 @@ namespace DutchTree
             {
                 app.UseExceptionHandler("/error");
             }
-            
 
+			////whatever comes in just spit out this  
+			//app.Run(async (context) =>
+			//{
+			//    await context.Response.WriteAsync("Hello World!");
+			//});
 
-            ////whatever comes in just spit out this  
-            //app.Run(async (context) =>
-            //{
-            //    await context.Response.WriteAsync("Hello World!");
-            //});
-
-            //serve files --security protocol for websites
-            //order matters here login, security asp.net pipeline under the covers 
-            // add some middleware in the purpose
-            // app.UseDefaultFiles(); // look for blandk directory url at the root url  look for those files by default
-            app.UseStaticFiles();
+			//serve files --security protocol for websites
+			//order matters here login, security asp.net pipeline under the covers 
+			// add some middleware in the purpose
+			// app.UseDefaultFiles(); // look for blandk directory url at the root url  look for those files by default
+			app.UseStaticFiles();
 
             //since this is the pipeline authentication should come before the use MVC, the the wireup happening here
             app.UseAuthentication();
 
-            app.UseMvc(cfg =>
+	        // Enable middleware to serve generated Swagger as a JSON endpoint.
+	        app.UseSwagger();
+
+	        // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
+	        app.UseSwaggerUI(c =>
+	        {
+		        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+	        });
+
+			app.UseMvc(cfg =>
             {
                 cfg.MapRoute("Default",
                     "{controller}/{action}/{id?}",
                     new { controller = "App", Action = "Index" });
-            });
+            });	
 
 			//app.UseMvc(routes =>
 			//{
@@ -130,7 +145,7 @@ namespace DutchTree
 			        var seeder = scope.ServiceProvider.GetService<DutchSeeder>();
                     // this is async method call, we could convert the Configure to async 
                     // but the current version does not support well witl async so make it sync by adding .Wait() after seeder.Seed()
-                    seeder.Seed();
+                    seeder.Seed().Wait();
 		        }
 	        }
         }
