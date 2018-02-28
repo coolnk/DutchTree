@@ -70,6 +70,18 @@ namespace DutchTree.Data
 	        _context.Add(model);
 	    }
 
+	    public IEnumerable<Order> GetAllOrdersByUser(string username, bool includeItems)
+	    {
+	        if (includeItems)
+	        {
+	            return _context.Orders
+	                .Where(o => o.User.UserName == username)
+	                .Include(o => o.Items)
+	                .ThenInclude(p => p.Product).ToList();
+	        }
+	        return _context.Orders.ToList();
+	    }
+
 	    public IEnumerable<Order> GetAllOrders(bool includeItems)
 	    {
 	        if (includeItems)
@@ -80,10 +92,12 @@ namespace DutchTree.Data
 	        return _context.Orders.ToList();
 	    }
 
-	    public Order GetOrderById(int id)
+	    public Order GetOrderById(string username, int id)
 	    {
-	        return _context.Orders.Include(o => o.Items).ThenInclude(i => i.Product).Where(m => m.Id == id).FirstOrDefault();
-
+	        return _context.Orders
+                .Include(o => o.Items)
+                .ThenInclude(i => i.Product )
+                .FirstOrDefault(m => m.Id == id  && m.User.UserName == username);
         }
     }
 }

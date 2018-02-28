@@ -45,6 +45,24 @@ namespace DutchTree
             })
             .AddEntityFrameworkStores<DutchContext>(); //tilling where to get the store, some people like to have in a differnet context
 
+
+            //services.AddSingleton(
+            //    new Mapper(new MapperConfiguration(cfg => cfg.AddProfile<DutchMappingProfile>())));
+
+            //newer version of automapper
+            services.AddAutoMapper(typeof(Startup));
+
+            services.AddAuthentication()
+                .AddCookie()
+                .AddJwtBearer(cfg =>
+                {
+                    cfg.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidIssuer =  _config["Tokens:Issuer"],
+                        ValidAudience = _config["Tokens:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Tokens:Key"]))
+                    };
+                });
   
 			//requires to use dependency injection
 			services.AddDbContext<DutchContext>(cfg =>
@@ -54,8 +72,6 @@ namespace DutchTree
 
             //through dependency injection of automapper
 
-            services.AddSingleton(
-                new Mapper(new MapperConfiguration(cfg => cfg.AddProfile<DutchMappingProfile>())));
             //Replaced the following caused mapper already initialized
             //services.AddAutoMapper();
 			//scoped one within the scopde
